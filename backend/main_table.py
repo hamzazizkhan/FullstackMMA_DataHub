@@ -65,4 +65,24 @@ def links_qu(main_rec_table):
         #print('=================')
     return(qu)
 
+def get_qu_str(html, tables, links_qu, all_hrefs=[]):
+    fighter_name, prof_rec_table, main_rec_table = tables(html)
+    qu = links_qu(main_rec_table)
+    #print(qu)
+
+    qu_str = ''
+    for e in qu:
+        if (e,) in all_hrefs: 
+            print(f'this link was skipped {e} from {fighter_name.split()[0]}')
+            continue
+        qu_str = qu_str + e + ' '
+
+    first_name = fighter_name.split()[0]
+    last_name = fighter_name.split()[1]
+
+    return (first_name, last_name, qu_str)
+
+
+
+
 

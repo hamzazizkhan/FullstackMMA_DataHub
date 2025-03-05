@@ -8,17 +8,8 @@ from bs4 import BeautifulSoup
 import os
 from main_table import tables
 from main_table import links_qu
+from main_table import get_qu_str
 import sys
-
-
-conn = sqlite3.connect('fighters.sqlite')
-cur = conn.cursor()
-try:
-    amount = int(sys.argv[1])
-except:
-    print('input is: python3 spider.py number_of_web_pages')
-
-seed_url = "https://en.wikipedia.org/wiki/Khabib_Nurmagomedov"
 
 def create_tables(cur):
 
@@ -53,22 +44,12 @@ def check_start_crawl(cur, seed_url):
         url = seed_url
         html = requests.get(url).text
 
-        fighter_name, prof_rec_table, main_rec_table = tables(html)
+        first_name, last_name, qu_str = get_qu_str(html, tables, links_qu)
 
-        qu = links_qu(main_rec_table)
-
-        qu_str = ''
-        for e in qu:
-            qu_str = qu_str + e + ' '
-
-        first_name = fighter_name.split()[0]
-        last_name = fighter_name.split()[1]
         cur.execute('''
         INSERT INTO qu (firstName, lastName, links, href, fromFirstName, fromLastName, html, rowid) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?) 
             ''',(first_name, last_name, qu_str, url,'seed','seed',html, 1))
-
-        
         conn.commit()
 
     else:
@@ -87,22 +68,20 @@ def BFS(amount):
     qu_items=0
     while qu_items<amount:
         cur.execute('''
-        SELECT firstName, lastName, html, href FROM qu
+        SELECT firstName, lastName, html, href, links FROM qu
         ''')
 
-        first_fighter = cur.fetchall()
-        first_fighter_first_name = first_fighter[0][0]
-        first_fighter_second_name = first_fighter[0][1]
-        first_fighter_html = first_fighter[0][2]
-        first_fighter_url = first_fighter[0][3]
+        first_fighter = cur.fetchone()
+        first_fighter_first_name = first_fighter[0]
+        first_fighter_second_name = first_fighter[1]
+        first_fighter_html = first_fighter[2]
+        first_fighter_url = first_fighter[3]
         #print(first_fighter_first_name,first_fighter_second_name)
-        cur.execute('''
-        SELECT links FROM qu
-        ''')
-        links = cur.fetchone()
-        links = links[0].split()  
+        links = first_fighter[4].split() 
+
         
-        #print(f'looping through links obtained from {first_fighter_first_name, first_fighter_second_name}')  
+        print(f'looping through links obtained from {first_fighter_first_name, first_fighter_second_name}')  
+        #print(f'{links} \n')
 
         rowid = None
         for link in links:
@@ -127,33 +106,21 @@ def BFS(amount):
                 continue
 
             html = requests.get(link).text
-            fighter_name, prof_rec_table, main_rec_table = tables(html)
-            #print(f'currently GETTING ALL LINKS FROM {fighter_name}\n')
-            qu = links_qu(main_rec_table)
-            #print(qu)
 
-            qu_str = ''
-            for e in qu:
-                if (e,) in all_hrefs: 
-                    print(f'this link was skipped {e} from {fighter_name.split()[0]}')
-                    continue
-                qu_str = qu_str + e + ' '
-
-            first_name = fighter_name.split()[0]
-            last_name = fighter_name.split()[1]
+            first_name, last_name, qu_str = get_qu_str(html, tables, links_qu, all_hrefs)
 
             cur.execute('''
             SELECT firstName, lastName, rowid FROM qu WHERE (firstName, lastName)=(?,?)
             ''',(first_name,last_name))
+
             alrdy_in_qu=cur.fetchall()
+
             if len(alrdy_in_qu)>0:
                 print(f'{alrdy_in_qu} occurences of {first_name} already in qu. intial skip failed. deleting from qu')
                 cur.execute('''
                 DELETE FROM qu WHERE rowid = ?
                 ''',(alrdy_in_qu[0][2],))
                 conn.commit()
-
-                
 
             cur.execute('''
             SELECT rowid FROM qu ORDER BY rowid 
@@ -171,9 +138,8 @@ def BFS(amount):
             #print(f'adding to visited links {first_name, last_name} \n')
         
         conn.commit()
-        # print(f'all links for {first_fighter_first_name} gone through')
-        # print(f'deleting {first_fighter_first_name} from qu')
-        # print(f'adding {first_fighter_first_name} to visited links')
+        print(f'all links for {first_fighter_first_name} gone through')
+        print(f'adding {first_fighter_first_name} to visited links')
         cur.execute('''
         INSERT INTO visited_links (firstName, lastName, href, html) VALUES (?, ?, ?, ?) 
             ''',(first_fighter_first_name, first_fighter_second_name, first_fighter_url, 
@@ -184,22 +150,34 @@ def BFS(amount):
                 ''')
         first_fighter_rowid = cur.fetchall()[0][0]
 
+        print(f'{first_fighter_first_name} {first_fighter_second_name} {first_fighter_rowid} should be out of qu \n')
         cur.execute('DELETE FROM qu WHERE rowid=?',(first_fighter_rowid,))
 
         conn.commit()
 
         # cur.execute('SELECT * FROM qu')
         # qu_end_iter =cur.fetchall()
-        #print(f'first two values in qu at end of iteration {qu_end_iter[0], qu_end_iter[1]} \n')
+        # print(f'first two values in qu at end of iteration {qu_end_iter[0], qu_end_iter[1]} \n')
 
         # cur.execute('SELECT firstName, lastName FROM visited_links')
         # visi_end_iter = cur.fetchall()
-        #print(f'last  value of visited set at end of iteration {visi_end_iter[-1]} \n')
+        # print(f'last  value of visited set at end of iteration {visi_end_iter[-1]} \n')       
         
         qu_items+=1
+
+
+conn = sqlite3.connect('../data/fighters.sqlite')
+cur = conn.cursor()
+try:
+    amount = int(sys.argv[1])
+except:
+    print('input is: python3 spider.py number_of_web_pages')
+
+seed_url = "https://en.wikipedia.org/wiki/Khabib_Nurmagomedov"
 
 create_tables(cur)
 check_start_crawl(cur, seed_url)
 BFS(amount)
 
+conn.commit
 cur.close()
