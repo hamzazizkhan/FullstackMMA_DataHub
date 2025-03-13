@@ -29,7 +29,9 @@ if textVersion:
     cur.close()
 else:
     if diff!=0:
+        
         appendToSql(diff,start_row, cur, conn)
+        
         conn.commit()
         cur.close()
     else:

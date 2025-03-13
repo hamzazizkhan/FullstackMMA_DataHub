@@ -150,22 +150,46 @@ def appendToSql(diff, start_row, cur, conn):
             first_name=fighter_name.split()[0]
             last_name = fighter_name.split()[1]
 
+
+            if len(prof_rec_list)<16:
+                print('hereeeeeee')
+                print(fighter_name)
+                print(prof_rec_list)
+
             prof_rec_data['firstName'] = [first_name]
             prof_rec_data['lastName'] = [last_name]
+            prof_rec_data['matches'] = int(prof_rec_list[0])
+            prof_rec_data['wins'] = int(prof_rec_list[2])
+            prof_rec_data['losses'] = int(prof_rec_list[4])
+
+            knockInd=prof_rec_list.index('knockout')
+            prof_rec_data['knockoutWins'] = int(prof_rec_list[knockInd+1])
+            prof_rec_data['knockoutLosses'] = int(prof_rec_list[knockInd+2])
+            
+            try:
+                subInd=prof_rec_list.index('submission')
+                prof_rec_data['submissionWins'] = int(prof_rec_list[subInd+1])
+                prof_rec_data['submissionLosses'] = int(prof_rec_list[subInd+2])
+            except:
+                prof_rec_data['submissionWins'] = 0
+                prof_rec_data['submissionLosses'] = 0
+            decInd=prof_rec_list.index('decision')
+            prof_rec_data['decisionWins'] = int(prof_rec_list[decInd+1])
+            prof_rec_data['decisionLosses'] = int(prof_rec_list[decInd+1])
+
+          
+            
 
             # print(prof_rec_list)
-            for i in range(len(prof_rec_list)):
-                if i >17: break
-                if i%2==0 and i<6:
-                    prof_rec_data[prof_rec_list[i+1]] = [int(prof_rec_list[i])]
-                if prof_rec_list[i]=='By':
-                    prof_rec_data[prof_rec_list[i+1]+ 'Wins'] =  [int(prof_rec_list[i+2])]
-                    prof_rec_data[prof_rec_list[i+1]+ 'Losses'] =  [int(prof_rec_list[i+3])]
             # print('\n')
             # print(prof_rec_data)
 
             #print(prof_rec_data)
+            # if 'loss' in prof_rec_data.keys(): 
+            #     print(prof_rec_data)
+            #     print(prof_rec_list)
             df_prof = pd.DataFrame(prof_rec_data)
+            
             #print(df_prof)
 
             # Export the DataFrame to the SQLite database
