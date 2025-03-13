@@ -8,100 +8,79 @@
 //     console.log(prof_rec_data.length);
 // })
 
-async function collectProfRecData(){
-    const path = 'scripts/prof_rec_data.json';
-    const req = new Request(path);
-    const response = await fetch(req).catch((error)=>{
-        console.error(`error in response ${error}`);
-    });
-    const prof_rec_data = await response.json().catch((error) => {
-        console.error(`error in json response ${error}`);
-    });
+// async function collectProfRecData(){
+//     const path = 'scripts/prof_rec_data.json';
+//     const req = new Request(path);
+//     const response = await fetch(req).catch((error)=>{
+//         console.error(`error in response ${error}`);
+//     });
+//     const prof_rec_data = await response.json().catch((error) => {
+//         console.error(`error in json response ${error}`);
+//     });
 
-    console.log('succesfully collected prof_rec_Data');
-    populateSummary(prof_rec_data);
-    populateFightersList(prof_rec_data);
-}
+//     console.log('succesfully collected prof_rec_Data');
+//     populateSummary(prof_rec_data);
+//     populateFightersList(prof_rec_data);
+// }
 
 
-function populateSummary(prof_rec_data){
-
+async function populateSummary(){
     const summary = document.querySelector('.summary');
     const numFighters = document.createElement('li');
-    numFighters.textContent = `collected data on ${prof_rec_data.length} fighters`;
+
+    const request = new Request('http://localhost:50000?dataLength');
+    const response = await fetch(request).catch((e)=>{
+        console.log('error in fetching data length');
+        console.error(e);
+    });
+
+    const lengthOfData = await response.text()
+    numFighters.textContent = `collected data on ${lengthOfData} fighters`;
 
     summary.appendChild(numFighters);
+    console.log('the response from my server for data length should be 102', lengthOfData);
 
+    populateFightersList();
 }
 
-function populateFightersList(prof_rec_data){
+
+async function populateFightersList(){
     const fightersList = document.querySelector('.fightersList');
+    
+    const request = new Request('http://localhost:50000?fighterID=1');
+    const response = await fetch(request).catch((e)=>{
+        console.log('error in getting fighter');
+        console.error(e);
+    })
 
-    let cnt =0;
-    for (row of prof_rec_data){
-        const firstName = row.firstName;
-        const lastName = row.lastName;
-        const text = `${firstName} ${lastName}`;
+    const allFighters = await response.json();
+    console.log('response for fighterID',allFighters);
 
-        const fighter = document.createElement('li');
-        fighter.setAttribute('id', cnt);
-        
-        
-        const dataButton = document.createElement('button');
-        
+    for (fighter of allFighters){
+        const firstName = fighter[0];
+        const lastName = fighter[1];
+        const matches = fighter[2];
+        const wins = fighter[3];
+        const losses = fighter[4];
+        const knockoutWins = fighter[5];
+        const knockoutLosses = fighter[6];
+        const submissionWins = fighter[7];
+        const submissionLosses = fighter[8];
+        const decisionWins = fighter[9];
+        const decisionLosses = fighter[10];
 
-        dataButton.textContent = 'show professional record';
-
-        fighter.textContent = text;
-        fightersList.appendChild(fighter);
-
-        fighter.addEventListener('click', showData);
-        
-        
-        fighter.appendChild(dataButton);
-        cnt++;
+        const fighterListElement = document.createElement('li');
+        fighterListElement.textContent = `fighter: ${firstName} ${lastName} matches: ${matches} wins: ${wins} losses: ${losses} knockoutWins: ${knockoutWins} knockoutLosses: ${knockoutLosses} submissionWins: ${submissionWins} submissionLosses: ${submissionLosses} decisionWins: ${decisionWins} decisionLosses: ${decisionLosses}`;
+        fightersList.appendChild(fighterListElement);
     }
 
-    function showData(e) {
 
-        const fighterListElement = e.currentTarget;
-        const fighterId = fighterListElement.id;
-        const fighter = prof_rec_data[fighterId];
-
-        const matches = fighter.matches;
-        const wins = fighter.wins;
-        const losses = fighter.losses;
-        const knockoutWins = fighter.knockoutWins;
-        const knockoutLosses = fighter.knockoutLosses;
-        const submissionWins = fighter.submissionWins;
-        const submissionLosses = fighter.submissionLosses;
-        const decisionWins = fighter.decisionWins;
-        const decisionLosses = fighter.decisionLosses;
-
-        const data = document.createElement('p');
-
-        data.textContent = `fights: ${matches}, wins:${wins} losses:${losses} knockoutWins: ${knockoutWins}
-        knockoutLosses:${knockoutLosses} submissionWins:${submissionWins} submissionLosses:${submissionLosses} 
-        decisionWins:${decisionWins} decisionLosses:${decisionLosses}`;
-
-        fighterListElement.appendChild(data);
-
-        const clearProfBtn = document.createElement('button');
-        clearProfBtn.textContent = 'hide';
-        data.addEventListener('click', clearRecord);
-        data.appendChild(clearProfBtn);
-    }
-
-    function clearRecord(e){
-        e.stopPropagation();
-        e.currentTarget.remove();
-    }
 }
 
+populateSummary();
 
 
 
 
-collectProfRecData();
 
 
