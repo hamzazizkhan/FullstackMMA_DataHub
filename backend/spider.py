@@ -16,16 +16,16 @@ def create_tables(cur):
     cur.execute('''
     CREATE TABLE IF NOT EXISTS profesional_record_data (firstName TEXT, lastName TEXT, matches INT, wins INT, losses INT, 
                 knockoutWins INT, knockoutLosses INT, submissionWins INT, submissionLosses INT, 
-                decisionWins INT, decisionLosses INT)
+                decisionWins INT, decisionLosses INT, fighterID INT)
     ''')
     cur.execute('''
     CREATE TABLE IF NOT EXISTS MMA_record (firstName TEXT, lastName TEXT, result TEXT, record NUMERIC, opponent TEXT, method TEXT, event TEXT,
-                date DATE, round INT, time NUMERIC, location TEXT, notes TEXT)
+                date DATE, round INT, time NUMERIC, location TEXT, notes TEXT, fighterID INT)
     ''')
 
 
     cur.execute(''' 
-    CREATE TABLE IF NOT EXISTS visited_links (firstName STR,lastName STR, href STR, html STR)
+    CREATE TABLE IF NOT EXISTS visited_links (firstName STR,lastName STR, href STR, html STR, fighterID INT)
     ''')
 
     cur.execute(''' 
@@ -84,11 +84,13 @@ def BFS(amount):
         #print(f'{links} \n')
 
         rowid = None
+        
         for link in links:
             cur.execute('''
             SELECT href FROM visited_links WHERE href=?
             ''',(link,))
             all_hrefs = cur.fetchall()
+
 
             cur.execute('''
             SELECT href FROM qu WHERE href=?
@@ -105,9 +107,20 @@ def BFS(amount):
                 print(f'this link is alrdy in qu {link} from {first_fighter_first_name}')
                 continue
 
-            html = requests.get(link).text
-
-            first_name, last_name, qu_str = get_qu_str(html, tables, links_qu, all_hrefs)
+            try:
+                html = requests.get(link).text
+            except:
+                print('\n===============WARNING==============\n')
+                print(f'error in getting link from {first_fighter_first_name, first_fighter_second_name} links')
+                print(f'skipping {link} from {first_fighter_first_name, first_fighter_second_name}')
+                continue
+            
+            try:
+                first_name, last_name, qu_str = get_qu_str(html, tables, links_qu, all_hrefs)
+            except:
+                print('\n===============WARNING==============\n')
+                print(f'this link {link} from {first_fighter_first_name, first_fighter_second_name} caused an error when getting qu_str. SKIPPING {link}')
+                continue
 
             cur.execute('''
             SELECT firstName, lastName, rowid FROM qu WHERE (firstName, lastName)=(?,?)
@@ -140,10 +153,16 @@ def BFS(amount):
         conn.commit()
         print(f'all links for {first_fighter_first_name} gone through')
         print(f'adding {first_fighter_first_name} to visited links')
+
         cur.execute('''
-        INSERT INTO visited_links (firstName, lastName, href, html) VALUES (?, ?, ?, ?) 
+            SELECT fighterID FROM visited_links ORDER BY fighterID DESC
+                ''')
+        fighterID = cur.fetchone()[0]+1
+
+        cur.execute('''
+        INSERT INTO visited_links (firstName, lastName, href, html, fighterID) VALUES (?, ?, ?, ?, ?) 
             ''',(first_fighter_first_name, first_fighter_second_name, first_fighter_url, 
-                first_fighter_html))
+                first_fighter_html, fighterID))
 
         cur.execute('''
             SELECT rowid FROM qu ORDER BY rowid 
@@ -167,6 +186,10 @@ def BFS(amount):
 
 
 conn = sqlite3.connect('../data/fighters.sqlite')
+
+print('WARNING: journal_mode=WAL allowing reading and writing concurrently to DB')
+conn.execute('PRAGMA journal_mode=WAL;')
+
 cur = conn.cursor()
 try:
     amount = int(sys.argv[1])
@@ -179,5 +202,5 @@ create_tables(cur)
 check_start_crawl(cur, seed_url)
 BFS(amount)
 
-conn.commit
+conn.commit()
 cur.close()

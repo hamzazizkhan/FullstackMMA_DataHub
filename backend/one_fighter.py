@@ -136,139 +136,194 @@ def appendToSql(diff, start_row, cur, conn):
     else:
         start=True
 
-    cur.execute('SELECT firstName, lastName, html FROM visited_links')
+    cur.execute('SELECT firstName, lastName, html, fighterID FROM visited_links')
     data = cur.fetchall()
     if start:
         for row_index in range(start_row,len(data)):
             #print(row[0])
             html = data[row_index][2]
-            fighter_name, prof_rec_table, main_rec_table = tables(html)
-        
-            prof_rec_data = {}
-            prof_rec_list = prof_rec_table.tbody.get_text().split()
-
-            first_name=fighter_name.split()[0]
-            last_name = fighter_name.split()[1]
-
-
-            if len(prof_rec_list)<16:
-                print('hereeeeeee')
-                print(fighter_name)
-                print(prof_rec_list)
-
-            prof_rec_data['firstName'] = [first_name]
-            prof_rec_data['lastName'] = [last_name]
-            prof_rec_data['matches'] = int(prof_rec_list[0])
-            prof_rec_data['wins'] = int(prof_rec_list[2])
-            prof_rec_data['losses'] = int(prof_rec_list[4])
-
-            knockInd=prof_rec_list.index('knockout')
-            prof_rec_data['knockoutWins'] = int(prof_rec_list[knockInd+1])
-            prof_rec_data['knockoutLosses'] = int(prof_rec_list[knockInd+2])
+            fighterID = data[row_index][3]
+            fname = data[row_index][0]
+            lname = data[row_index][1]
+            
+            #print(fighterID==row_index)
             
             try:
-                subInd=prof_rec_list.index('submission')
-                prof_rec_data['submissionWins'] = int(prof_rec_list[subInd+1])
-                prof_rec_data['submissionLosses'] = int(prof_rec_list[subInd+2])
+                fighter_name, prof_rec_table, main_rec_table = tables(html)
             except:
-                prof_rec_data['submissionWins'] = 0
-                prof_rec_data['submissionLosses'] = 0
-            decInd=prof_rec_list.index('decision')
-            prof_rec_data['decisionWins'] = int(prof_rec_list[decInd+1])
-            prof_rec_data['decisionLosses'] = int(prof_rec_list[decInd+1])
+                print('\n==================WARNING==================\n')
+                print(f'error in tables function for visited_link row_index {row_index}')
+                print(f'deleteing fighter with fighterID={fighterID} ^^ should be same with row_index')
+                print(f'fighter name: {fname, lname}')
 
-          
+                cur.execute('DELETE FROM visited_links WHERE fighterID=?', (fighterID,))
+                conn.commit()
+
+                # delete row from visted links, first add fighterIDcolumn!
+                continue
+
+            try:
+                prof_rec_data = {}
+                prof_rec_list = prof_rec_table.tbody.get_text().split()
+
+                first_name=fighter_name.split()[0]
+                last_name = fighter_name.split()[1]
+
+
+                if len(prof_rec_list)<16:
+                    #print('hereeeeeee')
+                    print(fighter_name)
+                    print(prof_rec_list)
+
+                prof_rec_data['firstName'] = [first_name]
+                prof_rec_data['lastName'] = [last_name]
+                prof_rec_data['matches'] = int(prof_rec_list[0])
+                prof_rec_data['wins'] = int(prof_rec_list[2])
+                prof_rec_data['losses'] = int(prof_rec_list[4])
+
+                try:
+                    knockInd=prof_rec_list.index('knockout')
+                    prof_rec_data['knockoutWins'] = int(prof_rec_list[knockInd+1])
+                    prof_rec_data['knockoutLosses'] = int(prof_rec_list[knockInd+2])
+                except IndexError:
+                    prof_rec_data['knockoutWins'] =0
+                    prof_rec_data['knockoutLosses'] =0
+
+                try:
+                    subInd=prof_rec_list.index('submission')
+                    prof_rec_data['submissionWins'] = int(prof_rec_list[subInd+1])
+                    prof_rec_data['submissionLosses'] = int(prof_rec_list[subInd+2])
+                except IndexError:
+                    prof_rec_data['submissionWins'] = 0
+                    prof_rec_data['submissionLosses'] = 0
+                try:
+                    decInd=prof_rec_list.index('decision')
+                    prof_rec_data['decisionWins'] = int(prof_rec_list[decInd+1])
+                    prof_rec_data['decisionLosses'] = int(prof_rec_list[decInd+1])
+                except IndexError:
+                    prof_rec_data['decisionWins'] = 0
+                    prof_rec_data['decisionLosses'] =0
+
+                
+                prof_rec_data['fighterID']=fighterID
             
+                
 
-            # print(prof_rec_list)
-            # print('\n')
-            # print(prof_rec_data)
+                # print(prof_rec_list)
+                # print('\n')
+                # print(prof_rec_data)
 
-            #print(prof_rec_data)
-            # if 'loss' in prof_rec_data.keys(): 
-            #     print(prof_rec_data)
-            #     print(prof_rec_list)
-            df_prof = pd.DataFrame(prof_rec_data)
-            
-            #print(df_prof)
+                #print(prof_rec_data)
+                # if 'loss' in prof_rec_data.keys(): 
+                #     print(prof_rec_data)
+                #     print(prof_rec_list)
+                df_prof = pd.DataFrame(prof_rec_data)
+                
+                #print(df_prof)
 
-            # Export the DataFrame to the SQLite database
-            table_name = 'profesional_record_data'
-            df_prof.to_sql(table_name, conn, if_exists='append', index=False)
+                # Export the DataFrame to the SQLite database
+                table_name = 'profesional_record_data'
+                df_prof.to_sql(table_name, conn, if_exists='append', index=False)
+            except:
+                print('\n==================WARNING==================\n')
+                print(f'error in parsing prof rec table html for visited_link row_index {row_index}')
+                print(f'\ndeleteing fighter with fighterID={fighterID} ^^ may not be same as row_index as items from visited links deleted previously')
+                print('\nexpect fighterID not to follow number of rows\n')
+                print(f'fighter name: {fname, lname}')
+
+                cur.execute('DELETE FROM visited_links WHERE fighterID=?', (fighterID,))
+                conn.commit()
+
+                # delete row from visted links, first add fighterIDcolumn!
+                continue
 
             ################################ main table
 
-            MMA_record = {'firstName':[], 'lastName':[], 'result':[], 'record':[], 'opponent':[], 'result':[], 'method':[], 'event':[], 'date':[], 
-              'round':[], 'time':[], 'location':[], 'notes':[]}
+            
 
-            rows = main_rec_table.find_all('tr')
-            qu = []
-            i=0
-            rowspan = []
-            inserts=0
-            texts=[]
-            for row in rows:
-                if i ==0:
-                    i=1
-                    continue
-                #print(row)
-                td = row.find_all('td')
-                text = [td_tag.text.strip() for td_tag in td]
+            try:
+                MMA_record = {'firstName':[], 'lastName':[], 'result':[], 'record':[], 'opponent':[], 'result':[], 'method':[], 'event':[], 'date':[], 
+                'round':[], 'time':[], 'location':[], 'notes':[], 'fighterID':[]}
+                rows = main_rec_table.find_all('tr')
+                qu = []
+                i=0
+                rowspan = []
+                inserts=0
+                texts=[]
+                for row in rows:
+                    if i ==0:
+                        i=1
+                        continue
+                    #print(row)
+                    td = row.find_all('td')
+                    text = [td_tag.text.strip() for td_tag in td]
 
 
-                if len(rowspan)!=0:
-                    for ele in rowspan:
-                        text_insert = ele[0]
-                        index_insert = ele[1]
-                        
-                        text.insert(index_insert, text_insert)
-                    if inserts==1:
-                        rowspan=[]
-                        inserts=0
+                    if len(rowspan)!=0:
+                        for ele in rowspan:
+                            text_insert = ele[0]
+                            index_insert = ele[1]
+                            
+                            text.insert(index_insert, text_insert)
+                        if inserts==1:
+                            rowspan=[]
+                            inserts=0
+                        else:
+                            inserts-=1
+
                     else:
-                        inserts-=1
+                        #rowspan = [(int(td_tag['rowspan'])-1, td_tag.text.strip(), i) for i, td_tag in enumerate(td) if 'rowspan' in td_tag.attrs]
+                        for i, td_tag in enumerate(td):
+                            if 'rowspan' in td_tag.attrs:
+                                rowspan.append((td_tag.text.strip(), i))
+                                inserts = int(td_tag['rowspan'])-1
+                    if len(text)<10:
+                        diff = 10-len(text)
+                        for _ in range(diff):
+                            text.append('Null')
 
-                else:
-                    #rowspan = [(int(td_tag['rowspan'])-1, td_tag.text.strip(), i) for i, td_tag in enumerate(td) if 'rowspan' in td_tag.attrs]
-                    for i, td_tag in enumerate(td):
-                        if 'rowspan' in td_tag.attrs:
-                            rowspan.append((td_tag.text.strip(), i))
-                            inserts = int(td_tag['rowspan'])-1
-                if len(text)<10:
-                    diff = 10-len(text)
-                    for _ in range(diff):
-                        text.append('Null')
+                    texts.append(text)
 
-                texts.append(text)
+                #print(texts)
 
-            #print(texts)
+                for val in range(len(texts)):
+                    MMA_record['firstName'].append(first_name)
+                    MMA_record['lastName'].append(last_name)
+                    MMA_record['fighterID'].append(fighterID)
 
-            for val in range(len(texts)):
-                MMA_record['firstName'].append(first_name)
-                MMA_record['lastName'].append(last_name)
+                # print('\n')
+                # print(MMA_record)
 
-            # print('\n')
-            # print(MMA_record)
+                # print('\n===')
+                texts = np.array(texts)
 
-            # print('\n===')
-            texts = np.array(texts)
+                MMA_record['result'] = list(map(lambda x:x[0], texts[:,0:1]))
+                MMA_record['record'] = list(map(lambda x:x[0], texts[:,1:2]))
+                MMA_record['opponent'] = list(map(lambda x:x[0], texts[:,2:3]))
+                MMA_record['method'] = list(map(lambda x:x[0], texts[:,3:4]))
+                MMA_record['event'] = list(map(lambda x:x[0], texts[:,4:5]))
+                MMA_record['date'] = list(map(lambda x:x[0], texts[:,5:6]))
+                MMA_record['round'] = list(map(lambda x:x[0], texts[:,6:7]))
+                MMA_record['time'] = list(map(lambda x:x[0], texts[:,7:8]))
+                MMA_record['location'] = list(map(lambda x:x[0], texts[:,8:9]))
+                MMA_record['notes'] = list(map(lambda x:x[0], texts[:,9:10]))
 
-            MMA_record['result'] = list(map(lambda x:x[0], texts[:,0:1]))
-            MMA_record['record'] = list(map(lambda x:x[0], texts[:,1:2]))
-            MMA_record['opponent'] = list(map(lambda x:x[0], texts[:,2:3]))
-            MMA_record['method'] = list(map(lambda x:x[0], texts[:,3:4]))
-            MMA_record['event'] = list(map(lambda x:x[0], texts[:,4:5]))
-            MMA_record['date'] = list(map(lambda x:x[0], texts[:,5:6]))
-            MMA_record['round'] = list(map(lambda x:x[0], texts[:,6:7]))
-            MMA_record['time'] = list(map(lambda x:x[0], texts[:,7:8]))
-            MMA_record['location'] = list(map(lambda x:x[0], texts[:,8:9]))
-            MMA_record['notes'] = list(map(lambda x:x[0], texts[:,9:10]))
+                df_MMArecord = pd.DataFrame(MMA_record)
 
-            df_MMArecord = pd.DataFrame(MMA_record)
+                # # Export the DataFrame to the SQLite database
+                table_name = 'MMA_record'
+                df_MMArecord.to_sql(table_name, conn, if_exists='append', index=False)
+            except:
+                print('\n==================WARNING==================\n')
+                print(f'error in parsing main table html for visited_link row_index {row_index}')
+                print(f'deleteing fighter with fighterID={fighterID} ^^ should be same with row_index')
+                print(f'fighter name: {fname, lname}')
+                
+                cur.execute('DELETE FROM visited_links WHERE fighterID=?', (fighterID,))
+                conn.commit()
 
-            # # Export the DataFrame to the SQLite database
-            table_name = 'MMA_record'
-            df_MMArecord.to_sql(table_name, conn, if_exists='append', index=False)
+                # delete row from visted links, first add fighterIDcolumn!
+                continue
 
 
 

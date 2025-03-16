@@ -12,4 +12,9 @@ backup_notes.txt
 fighters.sqlite
 fighters_demo.sqlite
 testingServer
-
+data
+notes
+out.txt
+out2.txt
+backend/.vscode
+backend/altTables.py
