@@ -71,7 +71,20 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(json.dumps(allFighters),'utf-8'))
 
             print(allFighters[0])
+        elif 'individualStatsFig' in cli_query.query:
+            self.send_header("Content-type", "image/jpeg")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            print('req for individualStatsFig recieved')
+            
+            ind = cli_query.query.find('=')+1
+            fighterId = cli_query.query[ind:]
+            print('fighterId is ', fighterId)
+            imageData = self.get_individualStatsFig(fighterId)
 
+            # with open (f'{fighterId}.png','rb') as I:
+            #     imageData=I.read()
+            self.wfile.write(imageData)
 
 
 
@@ -89,6 +102,10 @@ class dataHandler(MyServer):
         cur.execute('SELECT * FROM profesional_record_data LIMIT 50')
         all = cur.fetchall()
         return all
+    
+    def get_individualStatsFig(self, fighterId):
+        binaryImage = individualStatsFig(fighterId, cur)
+        return(binaryImage)
 
     
 

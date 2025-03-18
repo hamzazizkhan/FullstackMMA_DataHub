@@ -93,3 +93,11 @@ img {
     width: 400px;
     height: 200px;
 }
+
+.hyperlink {
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+  /* Makes it behave like a link */
+}
+
