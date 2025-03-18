@@ -12,6 +12,7 @@ import time
 import json
 from urllib.parse import urlparse
 import sqlite3
+from individualStats import individualStatsFig
 
 conn = sqlite3.connect('../data/fighters.sqlite')
 cur = conn.cursor()
