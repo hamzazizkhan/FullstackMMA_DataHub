@@ -18,3 +18,7 @@ out.txt
 out2.txt
 backend/.vscode
 backend/altTables.py
+summaryStats.csv
+summaryStats.py
+summaryStats.png
+.vscode

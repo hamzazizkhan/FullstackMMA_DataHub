@@ -35,21 +35,52 @@ customElements.define(
 
 async function populateSummary(){
     const summary = document.querySelector('.summary');
-    const numFighters = document.createElement('li');
+    const numFightsEle = document.createElement('li');
+    const numFightersEle = document.createElement('li');
 
-    const request = new Request('http://localhost:50000?dataLength');
+    const request = new Request('http://localhost:50000?summaryStats');
     const response = await fetch(request).catch((e)=>{
-        console.log('error in fetching data length');
+        console.log('error in fetching summaryStats');
         console.error(e);
     });
 
-    const lengthOfData = await response.text()
-    numFighters.textContent = `collected data on ${lengthOfData} fighters`;
+    const summaryStats = await response.text().catch((e)=>{
+        console.log('error in getting summaryStats text')
+        console.error(e)
+    })
+    // numFighters.textContent = `collected data on ${lengthOfData} fighters`;
 
-    summary.appendChild(numFighters);
-    console.log('the response from my server for data length should be 102', lengthOfData);
+    // summary.appendChild(numFighters);
+    numFights = summaryStats.slice(0, summaryStats.indexOf('/'));
+    numFighters = summaryStats.slice(summaryStats.indexOf('/') + 1,);
 
-    populateFightersList();
+    numFightsEle.textContent=`colected data on ${numFights} fights`;
+    numFightersEle.textContent=`for ${numFighters} individual fighters`;
+    
+    summary.appendChild(numFightsEle);
+    summary.appendChild(numFightersEle);
+
+
+    fig = document.createElement('figure');
+    figcap = document.createElement('figcaption');
+    figcap.innerText='an interesting finding';
+    
+    console.log('the response from my server for summaryStats: ', numFights, numFighters);
+
+    const requestImage = new Request('http://localhost:50000?summaryStatsImage');
+    const respImage = await fetch(requestImage).catch((e)=>{
+        console.log('error in fetching respImage');
+        console.error(e);
+    });
+    const summaryStatsImage=document.createElement('img');
+    const im = await respImage.blob();
+    summaryStatsImage.setAttribute('src', URL.createObjectURL(im));
+
+    fig.appendChild(summaryStatsImage);
+    fig.appendChild(figcap);
+
+    summary.appendChild(fig)
+    // populateFightersList();
 }
 
 
