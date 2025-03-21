@@ -1,27 +1,4 @@
-// fetch(path).then((response)=>{
-//     if (!response.ok){
-//         throw new Error('http not ok', response.status);
-        
-//     }
-//     return response.json();
-// }).then((prof_rec_data)=>{
-//     console.log(prof_rec_data.length);
-// })
 
-// async function collectProfRecData(){
-//     const path = 'scripts/prof_rec_data.json';
-//     const req = new Request(path);
-//     const response = await fetch(req).catch((error)=>{
-//         console.error(`error in response ${error}`);
-//     });
-//     const prof_rec_data = await response.json().catch((error) => {
-//         console.error(`error in json response ${error}`);
-//     });
-
-//     console.log('succesfully collected prof_rec_Data');
-//     populateSummary(prof_rec_data);
-//     populateFightersList(prof_rec_data);
-// }
 class tableList extends HTMLLIElement{
     constructor(){
         super();
@@ -115,13 +92,17 @@ async function populateFightersList(){
 
 
         const fighterEle = document.createElement('li');
-        fighterEle.setAttribute('class', 'hyperlink');       
-        fighterEle.setAttribute('id', fighterId); 
+        const fighterElePara = document.createElement('p');
+
+        fighterElePara.setAttribute('class', 'hyperlink');       
+        fighterEle.setAttribute('id', fighterId);
+        fighterEle.setAttribute('clicked', 0);
 
         
-        fighterEle.textContent = `${firstName} ${lastName} `;
-        fighterEle.addEventListener('click', individualStats);
+        fighterElePara.textContent = `${firstName} ${lastName} `;
+        fighterEle.addEventListener('click', individualStatsClick);
 
+        fighterEle.appendChild(fighterElePara);
         fightersList.appendChild(fighterEle);
         
     }
@@ -129,9 +110,18 @@ async function populateFightersList(){
 }
 
 
-async function individualStats(e){
-    const fighterEle = e.target;
+async function individualStatsClick(e){
+    const fighterEle = e.currentTarget;
+    let clicks = fighterEle.getAttribute('clicked');
+    console.log('intinal clicks', clicks);
+    console.log('curr targ', fighterEle);
     const fighterId = fighterEle.id;
+
+   
+    if(clicks==='1'){
+       
+        return removeIndStats(fighterEle);
+    }
 
     console.log(fighterEle, 'e');
 
@@ -144,10 +134,52 @@ async function individualStats(e){
     const binImg = await resp.blob();
     console.log('resp from server for individual stats is ', binImg);
 
+
     const individualStatsFig = document.createElement('img');
     individualStatsFig.setAttribute('src', URL.createObjectURL(binImg));
 
     fighterEle.appendChild(individualStatsFig);
+
+    const urlData = `http://localhost:50000?individualStatsData=${fighterId}`;
+    const reqData = new Request(urlData);
+    const respData = await fetch(reqData).catch((e)=>{
+        console.log('error in getting individual stats Data');
+        console.error(e);
+    });
+    const data= await respData.json();
+    console.log(respData, data, '===========> server')
+    const aveTime = data.aveTime;
+    const success = data.winPercentage;
+    
+    const tableTemp = document.querySelector('.tableListTemp');
+    const tableTempContent = tableTemp.content;
+    console.log(tableTempContent);
+    const tableAveTime = tableTempContent.querySelector('.aveTime');
+    console.log(tableAveTime);
+    const tableWinP = tableTempContent.querySelector('.winPercentage');
+    console.log(tableWinP);
+    tableAveTime.textContent=aveTime;
+    tableWinP.textContent=success;
+
+    fighterEle.appendChild(tableTempContent.cloneNode(true));
+
+    clicks=1;
+    console.log(clicks, 'clicks');
+    fighterEle.setAttribute('clicked', clicks);
+}
+
+function removeIndStats(fighterEle){
+    console.log('more than 1 click');
+    let clicks = 0;
+    fighterEle.setAttribute('clicked', clicks);
+    console.log(fighterEle.getAttribute('clicked'), '-clicks after setting to 0');
+    const fig = fighterEle.querySelector('img');
+    const tb = fighterEle.querySelector('table');
+
+    console.log('parentnode of fig', fig.parentNode);
+    fig.parentNode.removeChild(fig);
+    tb.parentNode.removeChild(tb);
+    return;
 
 }
 

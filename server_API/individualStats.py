@@ -10,7 +10,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import io
-
+from json import loads, dumps
+import json
 # conn = sqlite3.connect('../data/fighters.sqlite')
 # cur = conn.cursor()
 
@@ -22,7 +23,7 @@ def individualStatsFig(fighterId, cur):
     resul_ind = 2
     date_ind = 7 
     opp_ind = 4
-
+    fighterId_index = 11
     #print(rec)
 
     rec = np.array(rec)
@@ -43,6 +44,8 @@ def individualStatsFig(fighterId, cur):
 
     date = rec[:,date_ind]
     opp = rec[:,opp_ind]
+    fighterId = rec[:,fighterId_index]
+
     #print(date)
     #print(opp)
 
@@ -65,6 +68,26 @@ def individualStatsFig(fighterId, cur):
     plt.close() 
     return binary_data
 
+
+def individualStatsData(fighterId,df):
+    # df = pd.read_csv('summaryStats.csv')
+    print('df in func \n')
+    print(df)
+    fighter = df.loc[df['fighterId']==fighterId]
+    print('\n==========')
+    print(fighter.iloc[0,3], '============win P')
+    print(fighter.iloc[0,2], '============aveTime')
+    winP = fighter.iloc[0,3]
+    aveTime = fighter.iloc[0,2]
+
+    d = {'winPercentage':str(winP), 'aveTime':str(aveTime)}
+    return d
+
+    # aveTime = fighter.iloc[fighter['aveTime']]
+    # winP = fighter.loc['winPercentage']
+
+    # print(aveTime)
+    # print(winP)
 # firstName = 'Dustin'
 # lastName = 'Poirier'
 
@@ -72,3 +95,6 @@ def individualStatsFig(fighterId, cur):
 
 # cur.close()
 # conn.close()
+# df = pd.read_csv('summaryStats.csv')
+# d=individualStatsData(0, df)
+# print(d)

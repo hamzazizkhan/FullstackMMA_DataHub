@@ -10,31 +10,22 @@
 
 <body>
     <template class="tableListTemp">
-    <li>
-        <table>
-            <caption class="fighterName"></caption>
-            <caption class="fighterMatches"></caption>
-            <thead>
-                <tr>
-                    <th scope="col"></th>
-                    <th scope="col">wins</th>
-                    <th scope="col">losses</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <th scope="row">knockout</th>
-                    <td class="knockoutWins"></td>
-                    <td class="knockoutLosses"></td>
-                </tr>
-                <tr>
-                    <th scope="row">submission</th>
-                    <td class="submissionWins"></td>
-                    <td class="submissionLosses"></td>
-                </tr>
-            </tbody>
-        </table>
-    </li>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th scope="col">average time between fights</th>
+                <th scope="col">win percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="aveTime"></td>
+                <td class="winPercentage"></td>
+            </tr>
+        </tbody>
+    </table>
+ 
     </template>
 
     <h1>MMA data hub</h1>

@@ -12,13 +12,16 @@ import time
 import json
 from urllib.parse import urlparse
 import sqlite3
-from individualStats import individualStatsFig
+from individualStats import individualStatsFig, individualStatsData
+import pandas as pd
 
 conn = sqlite3.connect('../data/fighters.sqlite')
 cur = conn.cursor()
 
 summaryStats = open('summaryStats.json','r')
 summaryStats = json.load(summaryStats)
+summaryStatsData = pd.read_csv('summaryStats.csv', index_col=False)
+
 
 # summaryStatsImage = open('summaryStats.png')
 
@@ -71,6 +74,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(json.dumps(allFighters),'utf-8'))
 
             print(allFighters[0])
+
         elif 'individualStatsFig' in cli_query.query:
             self.send_header("Content-type", "image/jpeg")
             self.send_header("Access-Control-Allow-Origin", "*")
@@ -85,6 +89,21 @@ class MyServer(BaseHTTPRequestHandler):
             # with open (f'{fighterId}.png','rb') as I:
             #     imageData=I.read()
             self.wfile.write(imageData)
+
+        elif 'individualStatsData' in cli_query.query:
+            self.send_header("Content-type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            print('req for individualStatsData recieved')
+
+            ind = cli_query.query.find('=')+1
+            fighterId = int(cli_query.query[ind:])
+            print('fighterId is ', fighterId)
+            print(summaryStatsData.head)
+            data = self.get_individualStatsData(fighterId)
+            print('data obtained from ind stats func:',data)
+
+            self.wfile.write(bytes(json.dumps(data), 'utf-8'))
 
 
 
@@ -106,8 +125,11 @@ class dataHandler(MyServer):
     def get_individualStatsFig(self, fighterId):
         binaryImage = individualStatsFig(fighterId, cur)
         return(binaryImage)
-
     
+    def get_individualStatsData(self, fighterId):
+        data = individualStatsData(fighterId, summaryStatsData)
+        return data
+        
 
 
 if __name__ == "__main__":  
