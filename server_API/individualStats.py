@@ -49,7 +49,7 @@ def individualStatsFig(fighterId, cur):
     #print(date)
     #print(opp)
 
-    color = ['green' if i==1  else 'red' for i in result  ]
+    color = ['yellow' if i==1  else 'red' for i in result  ]
 
     plt.figure(figsize=(10, 3))  
     plt.bar(date, result, color = color, label = opp)
@@ -59,7 +59,8 @@ def individualStatsFig(fighterId, cur):
     #plt.savefig(f'{fighterId}.png', bbox_inches='tight')
 
     img_bytes = io.BytesIO()
-    plt.savefig(img_bytes, format='png', bbox_inches='tight')  # Save as PNG in memory
+    plt.savefig(img_bytes, format='png', bbox_inches='tight',
+                transparent=True)  # Save as PNG in memory
     img_bytes.seek(0)  # Move cursor to the beginning
 
     # Get binary data
@@ -71,15 +72,17 @@ def individualStatsFig(fighterId, cur):
 
 def individualStatsData(fighterId,df):
     # df = pd.read_csv('summaryStats.csv')
-    print('df in func \n')
-    print(df)
+    # print('df in func \n')
+    # print(df)
     fighter = df.loc[df['fighterId']==fighterId]
-    print('\n==========')
-    print(fighter.iloc[0,3], '============win P')
-    print(fighter.iloc[0,2], '============aveTime')
+    # print('\n==========')
+    # print(fighter.iloc[0,3], '============win P')
+    # print(fighter.iloc[0,2], '============aveTime')
     winP = fighter.iloc[0,3]
     aveTime = fighter.iloc[0,2]
 
+    winP = np.round(float(winP), 2)
+    aveTime = np.round(float(aveTime), 2)
     d = {'winPercentage':str(winP), 'aveTime':str(aveTime)}
     return d
 

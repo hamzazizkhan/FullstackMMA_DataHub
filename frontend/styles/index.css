@@ -1,37 +1,24 @@
 html {
-  font-size: 10px;
-  font-family: 'Open Sans', sans-serif;
+  font-size: 1.5rem;
+  font-family: "Press Start 2P", system-ui;
 }
 
-
 h1 {
-  font-size: 60px;
+  font-size: 150%;
   text-align: center;
 }
 
-p, li {
-  font-size: 16px;
+p,
+li {
+  font-size: 100%;
   line-height: 2;
   letter-spacing: 1px;
-}
-
-
-html {
-  background-color: #00539F;
-}
-
-body {
-  width: 600px;
-  margin: 0 auto;
-  background-color: #70de9a;
-  padding: 0 20px 20px 20px;
-  border: 5px solid black;
 }
 
 h1 {
   margin: 0;
   padding: 20px 0;
-  color: #00539F;
+  color: #ee7f52;
   text-shadow: 3px 3px 1px black;
 }
 
@@ -40,46 +27,23 @@ img {
   margin: 0 auto;
 }
 
-
-html {
-  font-size: 10px;
-  font-family: 'Open Sans', sans-serif;
-}
-
-
-h1 {
-  font-size: 60px;
-  text-align: center;
-}
-
 h2 {
-  font-size: 30px;
+  font-size: 130%;
+  color: #d152ee;
 }
 
-p, li {
-  font-size: 16px;
-  line-height: 2;
-  letter-spacing: 1px;
-}
 
 
 html {
-  background-color: #00539F;
+  background-color: #eaed95;
 }
 
 body {
-  width: 600px;
+  width: 1500px;
   margin: 0 auto;
   background-color: #70de9a;
   padding: 0 20px 20px 20px;
   border: 5px solid black;
-}
-
-h1 {
-  margin: 0;
-  padding: 20px 0;
-  color: #00539F;
-  text-shadow: 3px 3px 1px black;
 }
 
 /* img {
@@ -87,17 +51,40 @@ h1 {
   margin: 0 auto;
 } */
 img {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 5px;
-    width: 400px;
-    height: 200px;
+  /* border: 1px solid #ddd;
+    border-radius: 4px; */
+  padding: 5px;
+  width: 700px;
+  height: 500px;
 }
 
 .hyperlink {
   color: blue;
   text-decoration: underline;
   cursor: pointer;
+  font-size: 100%;
   /* Makes it behave like a link */
 }
 
+.container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  font-size: 70%;
+}
+
+.column {
+  width: 48%;
+  /* Adjust width as needed */
+  padding: 20px;
+  background-color: #70de9a;
+}
+
+input {
+  font-family: "Press Start 2P", system-ui;
+}
+
+button {
+  font-family: "Press Start 2P", system-ui;
+  font-size: 80%;
+}

@@ -1,7 +1,4 @@
-import sqlite3
-import requests
 from bs4 import BeautifulSoup
-import os
 
 # returns prof rec table and main table
 def tables(html_content):
