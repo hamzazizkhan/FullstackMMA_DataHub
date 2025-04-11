@@ -23,7 +23,7 @@ you can:
 ![Alt text](demo.gif)
 
 # Backend architecture
-![Backend arch](frontend/images/back-arch.png)
+![Backend architecture](frontend/images/back-arch.png)
 
 # API architecture
 an interesting part of the APIs is that they run data analysis scripts in python on demand.
