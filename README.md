@@ -20,7 +20,11 @@ you can:
 1) search for fighter in the DB - this displays interesting statistics and a figure showing the fighters fight history.
 2) click on a fighter name that is displayed on the website - the same as above is displayed.
 
-![Alt text](frontend/images/project-1R1.png)
+![Alt text](demo.gif)
 
 # Backend architecture
-![Alt_text](frontend/images/back-arch.png)
+![Backend arch](frontend/images/back-arch.png)
+
+# API architecture
+an interesting part of the APIs is that they run data analysis scripts in python on demand.
+whenever you click on a fighters name or search for a fighter, some data analysis is done. 
