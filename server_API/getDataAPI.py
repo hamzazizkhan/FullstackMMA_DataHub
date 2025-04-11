@@ -83,7 +83,8 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_header("Content-type", "image/jpeg")
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            print('req for individualStatsFig recieved')
+            print('req for indiv' \
+            'idualStatsFig recieved')
             
             ind = cli_query.query.find('=')+1
             fighterId = cli_query.query[ind:]
