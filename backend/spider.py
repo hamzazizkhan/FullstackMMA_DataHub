@@ -185,7 +185,7 @@ def BFS(amount):
         qu_items+=1
 
 
-conn = sqlite3.connect('../data/fighters.sqlite')
+conn = sqlite3.connect('.../data/fighters.sqlite')
 
 print('WARNING: journal_mode=WAL allowing reading and writing concurrently to DB')
 conn.execute('PRAGMA journal_mode=WAL;')

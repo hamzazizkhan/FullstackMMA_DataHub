@@ -7,7 +7,7 @@ import sqlite3
 from one_fighter import check_tables_update, write_to_txt, appendToSql
 from fighterDB import add_to_main_table, add_to_prof_rec
 
-conn = sqlite3.connect('../data/fighters.sqlite')
+conn = sqlite3.connect('.../data/fighters.sqlite')
 cur = conn.cursor()
 
 diff, start_row = check_tables_update(cur)

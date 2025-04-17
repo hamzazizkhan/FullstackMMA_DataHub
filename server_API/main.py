@@ -24,7 +24,7 @@ summaryStatsData = pd.read_csv('summaryStats.csv', index_col=False)
 
 
 
-db = '../data/fighters.sqlite'
+db = '.../data/fighters.sqlite'
 dbURL = f'sqlite:///{db}'
 args = {'check_same_thread': False}
 engine = create_engine(dbURL, connect_args=args)

@@ -1,6 +1,6 @@
 import sqlite3
 
-conn = sqlite3.connect('fighters.sqlite')
+conn = sqlite3.connect('.../data/fighters.sqlite')
 cur = conn.cursor()
 
 all=input('del all? ')
