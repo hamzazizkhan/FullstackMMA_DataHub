@@ -1,0 +1,7 @@
+matplotlib.pyplot
+io
+json
+pandas
+typing
+fastapi[all]
+sqlmodel
