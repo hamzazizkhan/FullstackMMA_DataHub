@@ -1,7 +1,4 @@
-matplotlib.pyplot
-io
-json
+matplotlib
 pandas
-typing
 fastapi[all]
 sqlmodel
