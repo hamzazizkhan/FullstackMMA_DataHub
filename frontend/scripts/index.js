@@ -9,6 +9,7 @@ customElements.define(
     tableList,
     {extends:'li'}
 );
+let api = 'mmadatahub.co.ke/api';
 
 async function populateSummary(){
     const summary = document.querySelector('.summary');
@@ -17,7 +18,10 @@ async function populateSummary(){
     const numFightsEle = document.createElement('li');
     const numFightersEle = document.createElement('li');
 
-    const request = new Request('http://localhost:50000/summaryStats');
+    let route = '/summaryStats'
+    let url = api+route;
+
+    const request = new Request(url);
     const response = await fetch(request).catch((e)=>{
         console.log('error in fetching summaryStats');
         console.error(e);
@@ -48,7 +52,10 @@ async function populateSummary(){
     
     console.log('the response from my server for summaryStats: ', numFights, numFighters);
     
-    const requestImage = new Request('http://localhost:50000/summaryStatsImage');
+    let route2 = '/summaryStatsImage';
+    url = api+route2;
+
+    const requestImage = new Request(url);
     const respImage = await fetch(requestImage).catch((e)=>{
         console.log('error in fetching respImage');
         console.error(e);
@@ -68,7 +75,10 @@ async function populateSummary(){
 async function populateFightersList(){
     const fightersList = document.querySelector('.fightersList');
 
-    const request = new Request('http://localhost:50000/fiftyFighters');
+    let route = '/fiftyFighter';
+    let url = api+route;
+
+    const request = new Request('url');
     const response = await fetch(request).catch((e)=>{
         console.log('error in getting fighter');
         console.error(e);
@@ -142,7 +152,7 @@ async function individualStatsClick(e){
 
     console.log(fighterEle, 'e');
 
-    const url = `http://localhost:50000/individualStatsFig?fighterId=${fighterId}`;
+    const url = `${api}/individualStatsFig?fighterId=${fighterId}`;
     const req = new Request(url)
     const resp = await fetch(req).catch((e)=>{
         console.log('error in getting individual stats');
@@ -158,7 +168,7 @@ async function individualStatsClick(e){
 
     fighterEle.appendChild(individualStatsFig);
 
-    const urlData = `http://localhost:50000/individualStatsData?fighterId=${fighterId}`;
+    const urlData = `${api}/individualStatsData?fighterId=${fighterId}`;
     const reqData = new Request(urlData);
     const respData = await fetch(reqData).catch((e)=>{
         console.log('error in getting individual stats Data');
@@ -226,7 +236,7 @@ async function searchClick(e){
         but.setAttribute('clicked', 1);
     }
 
-    const req = new Request(`http://localhost:50000/search?fighterName=${inputValue}`);
+    const req = new Request(`${api}/search?fighterName=${inputValue}`);
     
     const resp = await fetch(req).catch((e)=>{
         console.log('error in getting fighter', inputValue);
@@ -245,7 +255,7 @@ async function searchClick(e){
     const data = await resp.json()
     console.log('fighter found', data);
 
-    const reqImage = new Request(`http://localhost:50000/searchImage?fighterImage=${inputValue}`);
+    const reqImage = new Request(`${api}/searchImage?fighterImage=${inputValue}`);
     let respImage = await fetch(reqImage).catch((e)=>{
         console.log('error in getting image for fighter', inputValue);
         console.error(e);
