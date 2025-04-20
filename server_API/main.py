@@ -51,6 +51,7 @@ origins = [
     'http://172.20.10.2:8080'
 ]
 
+# if testing
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,  # List of allowed origins
