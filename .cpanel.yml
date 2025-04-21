@@ -2,4 +2,6 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/mfkgunhs/repositories/FullstackMMA_DataHub
-    - /bin/cp /frontend/* $DEPLOYPATH
+    - /bin/cp /frontend/images $DEPLOYPATH
+    - /bin/cp /frontend/styles/index.css $DEPLOYPATH
+    - /bin/cp /frontend/scripts/index.js $DEPLOYPATH
