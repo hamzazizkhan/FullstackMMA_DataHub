@@ -1,7 +1,12 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/mfkgunhs/public_html/
-    - cp frontend/styles/index.css ${DEPLOYPATH}styles/
-    - cp frontend/scripts/index.js ${DEPLOYPATH}scripts/
-    - cp frontend/index.html $DEPLOYPATH
+    - export BASEPATH=/home/mfkgunhs/public_html/
+
+    - cp frontend/index.html ${BASEPATH}
+
+    - mkdir -p ${BASEPATH}styles/
+    - cp frontend/styles/index.css ${BASEPATH}styles/
+
+    - mkdir -p ${BASEPATH}scripts/
+    - cp frontend/scripts/index.js ${BASEPATH}scripts/
