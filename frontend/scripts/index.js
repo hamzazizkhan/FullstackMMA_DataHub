@@ -9,7 +9,7 @@ customElements.define(
     tableList,
     {extends:'li'}
 );
-let api = 'https://mmadatahub.co.ke/api';
+let api = 'https://mmadatahub.co.ke:8000';
 
 async function populateSummary(){
     const summary = document.querySelector('.summary');
