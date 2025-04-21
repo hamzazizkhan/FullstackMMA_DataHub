@@ -2,6 +2,6 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/mfkgunhs/public_html/
-    - cp frontend/styles/index.css $DEPLOYPATH
-    - cp frontend/scripts/index.js $DEPLOYPATH
+    - cp frontend/styles/index.css ${DEPLOYPATH}styles/
+    - cp frontend/scripts/index.js ${DEPLOYPATH}scripts/
     - cp frontend/index.html $DEPLOYPATH
