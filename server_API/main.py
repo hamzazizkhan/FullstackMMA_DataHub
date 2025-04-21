@@ -45,20 +45,21 @@ def lifespan(app:FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# origins = [
-#     "http://localhost:50000", 
-#     'http://127.0.0.1:8080',
-#     'http://172.20.10.2:8080'
-# ]
+origins = [
+    "http://localhost:50000", 
+    'http://127.0.0.1:8080',
+    'http://172.20.10.2:8080',
+   "https://mmadatahub.co.ke:8000"
+]
 
-# # if testing
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],  # List of allowed origins
-#     allow_credentials=True,
-#     allow_methods=["*"],  # Or specify: ["GET", "POST", ...]
-#     allow_headers=["*"],  # Or specify: ["Content-Type", "Authorization"]
-# )
+# if testing
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # List of allowed origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Or specify: ["GET", "POST", ...]
+    allow_headers=["*"],  # Or specify: ["Content-Type", "Authorization"]
+)
 
 @app.get('/summaryStats')
 def handle_summaryStats():
