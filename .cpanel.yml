@@ -12,5 +12,5 @@ deployment:
     - cp frontend/scripts/index.js ${BASEPATH}scripts/
 
     - source /home/mfkgunhs/virtualenv/repositories/FullstackMMA_DataHub/server_API/3.10/bin/activate && cd /home/mfkgunhs/repositories/FullstackMMA_DataHub/server_API
-    - pip install -r server_API/requirements.txt
+    - pip install -r requirements.txt
     - nohup uvicorn main:app --host=0.0.0.0 --port=8000 &
