@@ -21,7 +21,6 @@ backend/.vscode
 backend/altTables.py
 summaryStats.csv
 summaryStats.py
-summaryStats.png
 .vscode
 performance_analysis
 server_API/tmp/
