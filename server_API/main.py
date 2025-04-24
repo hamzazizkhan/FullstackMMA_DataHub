@@ -1,142 +1,132 @@
-
-import matplotlib.pyplot as plt
-import io
-
-from individualStats import individualStatsFig, individualStatsData
+from flask import Flask,  send_file, request, abort, jsonify
+import sqlite3
+from contextlib import contextmanager
 import json
+from flask_cors import CORS, cross_origin
 import pandas as pd
-from typing import Annotated
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
 
-from fastapi import Depends, FastAPI, HTTPException, Query, Response, HTTPException
-from sqlmodel import Field, Session, SQLModel, create_engine, select
+from .individualStats import individualStatsFig, individualStatsData
 
-from models import MMA_record, visited_links, profesional_record_data
-
-summaryStats = open('summaryStats.json', 'r')
+summaryStats = open('./summaryStats.json', 'r')
 summaryStats = json.load(summaryStats)
 summaryStatsData = pd.read_csv('summaryStats.csv', index_col=False)
-'''
-    CREATE TABLE IF NOT EXISTS MMA_record (firstName TEXT, lastName TEXT, result TEXT, record NUMERIC, opponent TEXT, method TEXT, event TEXT,
-                date DATE, round INT, time NUMERIC, location TEXT, notes TEXT, fighterID INT)
-    '''
+# print(summaryStatsData, 'summmary here ====================================')
 
 
+app = Flask(__name__)
+CORS(app)
 
-db = '.../data/fighters.sqlite'
-dbURL = f'sqlite:///{db}'
-args = {'check_same_thread': False}
-engine = create_engine(dbURL, connect_args=args)
+dburl = '../../data/fighters.sqlite'
 
 
-def db_and_tables():
-    SQLModel.metadata.create_all(engine)
+@contextmanager
+def db_connect():
+    db = sqlite3.connect(dburl)
+    cur = db.cursor()
 
-def start_session():
-    with Session(engine) as session:
-        yield session
+    try:
+        yield cur
+    finally:
+        cur.close()
+        db.close()
 
-sessionDep = Annotated[Session, Depends(start_session)]        
 
-def lifespan(app:FastAPI):
-    db_and_tables()
-    yield
+@app.route('/')
+def start():
+    return 'hello bitch'
 
-app = FastAPI(lifespan=lifespan)
 
-origins = [
-    "http://localhost:50000", 
-    'http://127.0.0.1:8080',
-    'http://172.20.10.2:8080',
-   "https://mmadatahub.co.ke:8000"
-]
-
-# if testing
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # List of allowed origins
-    allow_credentials=True,
-    allow_methods=["*"],  # Or specify: ["GET", "POST", ...]
-    allow_headers=["*"],  # Or specify: ["Content-Type", "Authorization"]
-)
-
-@app.get('/summaryStats')
+@app.route('/summaryStats')
 def handle_summaryStats():
     numFights = str(summaryStats['numFights'])
     numFighters = str(summaryStats['numFighters'])
+
     val = numFights+'/'+numFighters
+
+    print('summaryStats')
+    print(numFighters, 'num fighters', numFights, 'num fights')
+    print('val', val)
+
     return val
 
 
-@app.get('/summaryStatsImage')
+@app.route('/summaryStatsImage')
 def handle_summaryStatsImage():
-    return FileResponse('summaryStats.png', media_type='image/jpeg')
+    return send_file('summaryStats.png', mimetype='image/jpeg')
 
 
-@app.get('/fiftyFighters')
-def handle_fifityFighters(session: sessionDep, 
-                          limit: int = 50)-> JSONResponse:
-    fiftyFighters = session.exec(
-        select(profesional_record_data).limit(limit)).all()
-    print(fiftyFighters)
-    return fiftyFighters
-
-
-@app.get('/individualStatsFig')
-def handle_individualStatsFig(fighterId: int, session: sessionDep):
-    print('ind stats fig handler')
-
-    img = individualStatsFig(fighterId, session)
-
+@app.route('/fiftyFighters')
+def handle_fifityFighters():
+    print('fiftyFIGHTERs========')
+    with db_connect() as cur:
+        cur.execute('SELECT firstName, lastName, fighterId FROM profesional_record_data LIMIT 50')
+        data = cur.fetchall()
+        print(data)
     
-    return Response(content = img, media_type='image/jpeg')
+    return jsonify(data)
 
 
-@app.get('/individualStatsData')
-def handle_individualStatsFig(fighterId: int, session: sessionDep):
-    print('ind stats data handler')
+@app.route('/individualStatsFig')
+def handle_individualStatsFig():
+    fighterId = request.args.get('fighterId')
+    with db_connect() as cur:        
+        img = individualStatsFig(fighterId, cur)
+    return img , {'Content-Type': 'image/jpeg'}
 
+@app.route('/individualStatsData')
+def handle_individualStatsData():
+    fighterId = request.args.get('fighterId')
+    print(summaryStatsData, 'summmary here ====================================')
+
+    fighterId = int(fighterId)
     data = individualStatsData(fighterId, summaryStatsData)
-    print(data, 'dattaaaaaaaaaa')
     return data
 
-    # return Response(data, 'json/application')
 
-@app.get('/search')
-def handle_search(fighterName: str, session: sessionDep)->dict:
+
+@app.route('/search')
+def handle_search():
+    fighterName = request.args.get('fighterName')
+
     nameInd = fighterName.find(',')+1
     fname = fighterName[0:nameInd-1]
     lname = fighterName[nameInd:]
 
-    fighterID = session.exec(select(visited_links.fighterID).where(visited_links.firstName==fname).where(visited_links.lastName==lname)).all()
+    with db_connect() as cur:
+        cur.execute('SELECT fighterID FROM visited_links WHERE (firstName, lastName) =(?,?)', (fname, lname) )
+        fighterId=cur.fetchone()
 
-    
-    if len(fighterID) > 0:
+    if fighterId:
         print(fname, lname,
-              fighterID[0], '===========================================================================')
-        data = individualStatsData(fighterID[0], summaryStatsData)
+              fighterId[0], '===========================================================================')
+        data = individualStatsData(fighterId[0], summaryStatsData)
         return data
     else:
-        raise HTTPException(status_code=404, detail='fighter not found')
-    
+        raise abort(404, 'fighter not found')
 
-@app.get('/searchImage')
-def handle_searchImage(fighterImage: str, session: sessionDep):
+
+@app.route('/searchImage')
+def handle_searchImage():
+    fighterImage = request.args.get('fighterImage')
+
+    
     nameInd = fighterImage.find(',')+1
     fname = fighterImage[0:nameInd-1]
     lname = fighterImage[nameInd:]
 
-    fighterID = session.exec(select(visited_links.fighterID).where(
-        visited_links.firstName == fname).where(visited_links.lastName == lname)).all()
-  
-    
-    if len(fighterID) > 0:
-        print(fname, lname,
-              fighterID[0], '===========================================================================')
-        img = individualStatsFig(fighterID[0], session)
-        return Response(img, media_type = 'img/jpeg')
-    else:
-        raise HTTPException(status_code=404, detail='fighter not found')
+    with db_connect() as cur:
+        cur.execute(
+            'SELECT fighterID FROM visited_links WHERE (firstName, lastName) =(?,?)', (fname, lname))
+        fighterId = cur.fetchone()
+
+        if fighterId:
+            print(fname, lname,
+                fighterId[0], '===========================================================================')
+            img = individualStatsFig(fighterId[0], cur)
+            return img, {'Content-Type': 'image/jpeg'}
+        else:
+            raise abort(404, 'fighter not found')
 
 
+# @app.route('/searchImage')
+# def handle_searchImage(fighterImage: str, session: sessionDep):
