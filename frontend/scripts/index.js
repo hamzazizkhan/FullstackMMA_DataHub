@@ -9,8 +9,8 @@ customElements.define(
     tableList,
     {extends:'li'}
 );
-let api = 'http://127.0.0.1:5000';
-
+// let api = 'http://127.0.0.1:5000';
+let api = 'https://mmadatahub.co.ke/api';
 async function populateSummary(){
     const summary = document.querySelector('.summary');
     const interestingFindEle = document.querySelector('.interestingFind');

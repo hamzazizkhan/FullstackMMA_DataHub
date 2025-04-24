@@ -31,9 +31,9 @@ def db_connect():
         db.close()
 
 
-@app.route('/')
+@app.route('/api')
 def start():
-    return 'hello bitch'
+    return 'hello MMA Data Hub'
 
 
 @app.route('/summaryStats')
