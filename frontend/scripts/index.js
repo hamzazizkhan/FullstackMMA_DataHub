@@ -9,7 +9,7 @@ customElements.define(
     tableList,
     {extends:'li'}
 );
-let api = 'https://mmadatahub.co.ke:8000';
+let api = 'http://127.0.0.1:5000';
 
 async function populateSummary(){
     const summary = document.querySelector('.summary');
@@ -34,8 +34,8 @@ async function populateSummary(){
     // numFighters.textContent = `collected data on ${lengthOfData} fighters`;
 
     // summary.appendChild(numFighters);
-    numFights = summaryStats.slice(1, summaryStats.indexOf('/'));
-    numFighters = summaryStats.slice(summaryStats.indexOf('/') + 1,-1);
+    numFights = summaryStats.slice(0, summaryStats.indexOf('/'));
+    numFighters = summaryStats.slice(summaryStats.indexOf('/') + 1);
 
     numFightsEle.textContent=`colected data on ${numFights} fights`;
     numFightersEle.textContent=`for ${numFighters} individual fighters`;
@@ -66,8 +66,8 @@ async function populateSummary(){
 
     fig.appendChild(summaryStatsImage);
     // fig.appendChild(figcap);
-
     interestingFindEle.appendChild(fig)
+
     populateFightersList();
 }
 
@@ -75,12 +75,12 @@ async function populateSummary(){
 async function populateFightersList(){
     const fightersList = document.querySelector('.fightersList');
 
-    let route = '/fiftyFighter';
+    let route = '/fiftyFighters';
     let url = api+route;
 
-    const request = new Request('url');
+    const request = new Request(url);
     const response = await fetch(request).catch((e)=>{
-        console.log('error in getting fighter');
+        console.log('error in getting fighters');
         console.error(e);
     })
 
@@ -91,18 +91,9 @@ async function populateFightersList(){
     console.log('response for allFighters',allFighters);
 
     for (fighter of allFighters){
-        const firstName = fighter['firstName'];
-        const lastName = fighter['lastName'];
-        // const matches = fighter['matches'];
-        // const wins = fighter['wins'];
-        // const losses = fighter['losses'];
-        // const knockoutWins = fighter['knockoutWins'];
-        // const knockoutLosses = fighter['knockoutLosses'];
-        // const submissionWins = fighter['submissionWins'];
-        // const submissionLosses = fighter['submissionLosses'];
-        // const decisionWins = fighter['decisionWins'];
-        // const decisionLosses = fighter['decisionLosses'];
-        const fighterId = fighter['fighterID'];
+        const firstName = fighter[0];
+        const lastName = fighter[1];
+        const fighterId = fighter[2];
 
 
         const fighterEle = document.createElement('li');
@@ -298,6 +289,8 @@ function clearButClick(e){
     const fig = searchEle.querySelectorAll('img');
     const table = searchEle.querySelectorAll('table');
     const para = searchEle.querySelectorAll('p');
+    const input = searchEle.querySelector('input');
+
 
     const searchBut = document.querySelector('.searchBut');
     searchBut.setAttribute('clicked', 0);
@@ -323,6 +316,9 @@ function clearButClick(e){
     }
 
     searchEle.removeChild(but);
+    input.value = '';
+
+
     console.log(searchEle, '====================search ele');
 }
 
