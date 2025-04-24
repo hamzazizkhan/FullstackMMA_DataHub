@@ -24,3 +24,4 @@ summaryStats.py
 .vscode
 performance_analysis
 server_API/tmp/
+main_FastAPI.py
