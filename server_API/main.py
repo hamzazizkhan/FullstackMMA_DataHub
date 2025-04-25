@@ -5,7 +5,7 @@ import json
 from flask_cors import CORS, cross_origin
 import pandas as pd
 
-from individualStats import individualStatsFig, individualStatsData
+from .individualStats import individualStatsFig, individualStatsData
 
 summaryStats = open('./summaryStats.json', 'r')
 summaryStats = json.load(summaryStats)
