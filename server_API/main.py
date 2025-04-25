@@ -36,7 +36,7 @@ def start():
     return 'hello MMA Data Hub'
 
 
-@app.route('/api/summaryStats')
+@app.route('/summaryStats')
 def handle_summaryStats():
     numFights = str(summaryStats['numFights'])
     numFighters = str(summaryStats['numFighters'])
