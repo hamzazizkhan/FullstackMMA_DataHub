@@ -19,7 +19,6 @@ out.txt
 out2.txt
 backend/.vscode
 backend/altTables.py
-summaryStats.csv
 summaryStats.py
 .vscode
 performance_analysis
