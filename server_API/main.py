@@ -10,6 +10,7 @@ from .individualStats import individualStatsFig, individualStatsData
 BASE_DIR = os.path.dirname(__file__)
 summaryStats_path = os.path.join(BASE_DIR, 'summaryStats.json')
 summaryStatsData_path = os.path.join(BASE_DIR, 'summaryStats.csv')
+db_path = os.path.join(BASE_DIR, '../../data/fighters.sqlite')
 
 summaryStats = open(summaryStats_path, 'r')
 summaryStats = json.load(summaryStats)
