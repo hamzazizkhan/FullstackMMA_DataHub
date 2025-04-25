@@ -21,12 +21,9 @@ summaryStatsData = pd.read_csv(summaryStatsData_path, index_col=False)
 app = Flask(__name__)
 CORS(app)
 
-dburl = '../../data/fighters.sqlite'
-
-
 @contextmanager
 def db_connect():
-    db = sqlite3.connect(dburl)
+    db = sqlite3.connect(db_path)
     cur = db.cursor()
 
     try:
@@ -38,6 +35,7 @@ def db_connect():
 
 @app.route('/')
 def start():
+    print(db_path)
     return 'hello MMA Data Hub'
 
 
