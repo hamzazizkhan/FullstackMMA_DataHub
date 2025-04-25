@@ -31,7 +31,7 @@ def db_connect():
         db.close()
 
 
-@app.route('/api')
+@app.route('/')
 def start():
     return 'hello MMA Data Hub'
 
