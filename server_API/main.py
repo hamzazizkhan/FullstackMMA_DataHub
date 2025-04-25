@@ -4,12 +4,16 @@ from contextlib import contextmanager
 import json
 from flask_cors import CORS, cross_origin
 import pandas as pd
-
+import os
 from .individualStats import individualStatsFig, individualStatsData
 
-summaryStats = open('./summaryStats.json', 'r')
+BASE_DIR = os.path.dirname(__file__)
+summaryStats_path = os.path.join(BASE_DIR, 'summaryStats.json')
+summaryStatsData_path = os.path.join(BASE_DIR, 'summaryStats.csv')
+
+summaryStats = open(summaryStats_path, 'r')
 summaryStats = json.load(summaryStats)
-summaryStatsData = pd.read_csv('summaryStats.csv', index_col=False)
+summaryStatsData = pd.read_csv(summaryStatsData_path, index_col=False)
 # print(summaryStatsData, 'summmary here ====================================')
 
 
