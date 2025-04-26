@@ -11,8 +11,7 @@ deployment:
     - mkdir -p ${BASEPATH}scripts/
     - cp frontend/scripts/index.js ${BASEPATH}scripts/
 
-    - mkdir -p ${BASEPATH}images/
-    - cp frontend/images/favicon.ico ${BASEPATH}images/
+    - cp frontend/images/favicon.ico ${BASEPATH}
 
     - source /home/mfkgunhs/virtualenv/repositories/FullstackMMA_DataHub/server_API/3.10/bin/activate && cd /home/mfkgunhs/repositories/FullstackMMA_DataHub/server_API
     
