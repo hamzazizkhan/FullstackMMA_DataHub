@@ -11,6 +11,9 @@ deployment:
     - mkdir -p ${BASEPATH}scripts/
     - cp frontend/scripts/index.js ${BASEPATH}scripts/
 
+    - mkdir -p ${BASEPATH}images/
+    - cp frontend/images/favicon.ico ${BASEPATH}images/
+
     - source /home/mfkgunhs/virtualenv/repositories/FullstackMMA_DataHub/server_API/3.10/bin/activate && cd /home/mfkgunhs/repositories/FullstackMMA_DataHub/server_API
-    - pip install -r requirements.txt
-    - nohup uvicorn main:app --host=0.0.0.0 --port=8000 &
+    
+    
